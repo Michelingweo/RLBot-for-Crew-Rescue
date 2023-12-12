@@ -42,8 +42,11 @@ def cross_entropy_error(y, t):
 
 
 def softmax(x):
+
     c = np.max(x)
-    exp_a = np.exp(x-c)
+    _ = x-c
+    _ = _.astype(float)
+    exp_a = np.exp(_)
     sum_exp_a = np.sum(exp_a)
     return exp_a/np.sum(sum_exp_a)
 

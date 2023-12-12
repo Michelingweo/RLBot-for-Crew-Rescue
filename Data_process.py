@@ -9,7 +9,7 @@ import numpy as np
 class DataLoader:
 
     def __init__(self, data, batch_size):
-        self.data = np.array(data)
+        self.data = np.array(data, dtype=object)
         self.batch_size = batch_size
         self.index = 0
         self.setLen = len(self.data)
@@ -38,7 +38,7 @@ class DataLoader:
             else:
                 raise ValueError("Each item should have both feature and label")
         
-        return features, labels
+        return np.array(features, dtype=object), np.array(labels, dtype=object)
 
         
     def get_data_size(self):
@@ -92,8 +92,4 @@ train_, _ = read_data()
 
 trainset = DataLoader(train_, batch_size=10)
 
-for feature, label in trainset:
-    print(len(feature[0]))
-    print(len(label))
-    # print(label)
-    break
+print(trainset.get_data_dimention())

@@ -22,28 +22,30 @@ class SpaceShipMLP:
         wight_init_scale = np.sqrt(2.0 / pre_node_nums)  # recommended init value when using ReLu
         
         self.params = {}
-        self.params['W1'] = wight_init_scale * np.random.randn(input_size, 2*input_size)
-        self.params['b1'] = np.zeros(2*input_size)
-        self.params['W2'] = wight_init_scale * np.random.randn(2*input_size, int(input_size/2))
-        self.params['b2'] = np.zeros(int(input_size/2))
-        self.params['W3'] = wight_init_scale * np.random.randn(int(input_size/2), output_size)
-        self.params['b3'] = np.zeros(output_size)
+        self.params['W0'] = wight_init_scale * np.random.randn(input_size, 2*input_size)
+        self.params['b0'] = np.zeros(2*input_size)
+        self.params['W3'] = wight_init_scale * np.random.randn(2*input_size, int(input_size/2))
+        self.params['b3'] = np.zeros(int(input_size/2))
+        self.params['W5'] = wight_init_scale * np.random.randn(int(input_size/2), output_size)
+        self.params['b5'] = np.zeros(output_size)
         self.layers = []
  
-        self.layers.append(Affine(self.params['W1'], self.params['b1']))
-        self.layers.append(Affine(self.params['W2'], self.params['b2']))
+        self.layers.append(Affine(self.params['W0'], self.params['b0']))
         self.layers.append(Relu())
         self.layers.append(Dropout(0.5))
         self.layers.append(Affine(self.params['W3'], self.params['b3']))
         self.layers.append(Dropout(0.5))
+        self.layers.append(Affine(self.params['W5'], self.params['b5']))
+
+        self.last_layer = SoftmaxWithLoss()
         
     def predict(self,x):
-        for layer in self.layers.values():
+        for layer in self.layers:
             x = layer.forward(x)
         return x
     
     def loss(self, x, t):
-        y = self.predict(x, train_flg=True)
+        y = self.predict(x)
         return self.last_layer.forward(y, t)
 
     def accuracy(self, test_set, batch_size=100):
@@ -52,10 +54,10 @@ class SpaceShipMLP:
 
         acc = 0.0
 
-        for i in range(int(x.shape[0] / batch_size)):
-            x_test, y_test = test_set.next()
+        for i in range(int(test_set.setLen / batch_size)):
+            x_test, y_test = test_set.__next__()
             
-            y_pred = self.predict(x_test, train_flg=False)
+            y_pred = self.predict(x_test)
             y_pred = np.argmax(y_pred, axis=1)
             acc += np.sum(y_pred == y_test)
 
@@ -76,10 +78,11 @@ class SpaceShipMLP:
 
         # 设定
         grads = {}
-        for i, layer_idx in enumerate((0, 2, 5, 7, 10, 12, 15, 18)):
-            grads['W' + str(i+1)] = self.layers[layer_idx].dW
-            grads['b' + str(i+1)] = self.layers[layer_idx].db
+        for i, layer_idx in enumerate((0, 3, 5)):
+            grads['W' + str(layer_idx)] = self.layers[layer_idx].dW
+            grads['b' + str(layer_idx)] = self.layers[layer_idx].db
 
+        # print(grads.keys())
         return grads
 
     def save_params(self, file_name="params.pkl"):
@@ -131,7 +134,7 @@ class Trainer:
 
     def train_step(self):
         
-        x_batch, t_batch = self.train_set.next()
+        x_batch, t_batch = self.train_set.__next__()
 
         grads = self.network.gradient(x_batch, t_batch)
         self.optimizer.update(self.network.params, grads)
@@ -144,12 +147,12 @@ class Trainer:
             self.current_epoch += 1
 
             
-            x_train_sample, t_train_sample = self.train_set.next()
-            x_test_sample, t_test_sample = self.test_set.next()
+            x_train_sample, t_train_sample = self.train_set.__next__()
+            x_test_sample, t_test_sample = self.test_set.__next__()
             if not self.evaluate_sample_num_per_epoch is None:
                 t = self.evaluate_sample_num_per_epoch
-                x_train_sample, t_train_sample = self.train_set.next(bs=t)
-                x_test_sample, t_test_sample = self.test_set.next(bs=t)
+                x_train_sample, t_train_sample = self.train_set.__next__(bs=t)
+                x_test_sample, t_test_sample = self.test_set.__next__(bs=t)
 
             train_acc = self.network.accuracy(self.test_set)
             test_acc = self.network.accuracy(self.test_set)
@@ -190,10 +193,10 @@ if __name__ == '__main__':
     # data & model init
     trainset_, testset_ = read_data()
     
-    train_set = DataLoader(trainset_, batch_szie=bs)
-    test_set = DataLoader(testset_, batch_szie=bs)
+    train_set = DataLoader(trainset_, batch_size=bs)
+    test_set = DataLoader(testset_, batch_size=bs)
     
-    input_size, label_size = train_set.get_data_dimention
+    input_size, label_size = train_set.get_data_dimention()
     
     # x_train, y_train, x_test, y_test 
     network = SpaceShipMLP(input_size=input_size, output_size=label_size)

@@ -114,6 +114,11 @@ class Adam:
                 self.m[key] = np.zeros_like(val)
                 self.v[key] = np.zeros_like(val)
         
+        for key in grads:
+            if grads[key].dtype == 'object':
+                grads[key] = np.asarray(grads[key], dtype=np.float64)
+
+
         self.iter += 1
         lr_t  = self.lr * np.sqrt(1.0 - self.beta2**self.iter) / (1.0 - self.beta1**self.iter)         
         

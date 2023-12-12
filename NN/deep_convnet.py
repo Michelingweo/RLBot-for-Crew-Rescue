@@ -4,7 +4,7 @@ sys.path.append(os.pardir)  # 为了导入父目录的文件而进行的设定
 import pickle
 import numpy as np
 from collections import OrderedDict
-from NNfunctions import *
+from .NNfunctions import *
 
 
 def im2col(input_data, filter_h, filter_w, stride=1, pad=0):
@@ -88,6 +88,7 @@ class Affine:
 
     def forward(self, x):
         # 对应张量
+
         self.original_x_shape = x.shape
         x = x.reshape(x.shape[0], -1)
         self.x = x
