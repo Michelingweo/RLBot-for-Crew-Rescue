@@ -59,7 +59,10 @@ class SpaceShipMLP:
             x_test, y_test = test_set.__next__()
             
             y_pred = self.predict(x_test)
+            # print('raw_pred:', y_pred)
             y_pred = np.argmax(y_pred, axis=1)
+            # print('label_pred:', y_pred)
+            y_test = np.argmax(y_test, axis=1)
             acc += np.sum(y_pred == y_test)
 
         return acc / x_test.shape[0]
@@ -124,8 +127,10 @@ class Trainer:
         self.optimizer = optimizer_class_dict[optimizer.lower()](**optimizer_param)
 
         self.train_size = train_set.setLen
-        self.iter_per_epoch = max(self.train_size / mini_batch_size, 1)
-        self.max_iter = int(epochs * self.iter_per_epoch)
+        self.iter_per_epoch = int(max(self.train_size / mini_batch_size, 1))
+        # self.max_iter = int(epochs * self.iter_per_epoch)
+        self.epochs = epochs
+        
         self.current_iter = 0
         self.current_epoch = 0
 
@@ -135,25 +140,31 @@ class Trainer:
 
     def train_step(self):
         
-        x_batch, t_batch = self.train_set.__next__()
+        for i in range(self.iter_per_epoch):
+        
+            x_batch, t_batch = self.train_set.__next__()
 
-        grads = self.network.gradient(x_batch, t_batch)
-        self.optimizer.update(self.network.params, grads)
+            grads = self.network.gradient(x_batch, t_batch)
+            self.optimizer.update(self.network.params, grads)
 
-        loss = self.network.loss(x_batch, t_batch)
-        self.train_loss_list.append(loss)
-        if self.verbose: print("train loss:" + str(loss))
+            loss = self.network.loss(x_batch, t_batch)
+            self.train_loss_list.append(loss)
+            if self.verbose and i%10 == 0: 
+                print("train loss:" + str(loss))
 
-        if self.current_iter % self.iter_per_epoch == 0:
-            self.current_epoch += 1
+        
 
+    def train(self):
+        
+        for i in range(self.epochs):
+            self.train_step()
             
-            x_train_sample, t_train_sample = self.train_set.__next__()
-            x_test_sample, t_test_sample = self.test_set.__next__()
-            if not self.evaluate_sample_num_per_epoch is None:
-                t = self.evaluate_sample_num_per_epoch
-                x_train_sample, t_train_sample = self.train_set.__next__(bs=t)
-                x_test_sample, t_test_sample = self.test_set.__next__(bs=t)
+            # x_train_sample, t_train_sample = self.train_set.__next__()
+            # x_test_sample, t_test_sample = self.test_set.__next__()
+            # if not self.evaluate_sample_num_per_epoch is None:
+            #     t = self.evaluate_sample_num_per_epoch
+            #     x_train_sample, t_train_sample = self.train_set.__next__(bs=t)
+            #     x_test_sample, t_test_sample = self.test_set.__next__(bs=t)
 
             train_acc = self.network.accuracy(self.test_set)
             test_acc = self.network.accuracy(self.test_set)
@@ -163,13 +174,9 @@ class Trainer:
             if self.verbose: print(
                 "=== epoch:" + str(self.current_epoch) + ", train acc:" + str(train_acc) + ", test acc:" + str(
                     test_acc) + " ===")
-        self.current_iter += 1
+            self.current_epoch += 1
 
-    def train(self):
-        for i in range(self.max_iter):
-            self.train_step()
-
-        test_acc = self.network.accuracy(self.x_test, self.t_test)
+        test_acc = self.network.accuracy(self.test_set)
 
         if self.verbose:
             print("=============== Final Test Accuracy ===============")
