@@ -434,7 +434,7 @@ class Ship:
             x = position[0]
             y = position[1]
 
-            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+            directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]
 
             cell_i_index = x * self.Ship_Dimention + y
 

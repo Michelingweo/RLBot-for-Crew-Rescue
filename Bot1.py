@@ -773,6 +773,24 @@ class Bot1_save_feature:
         return DS_Alien_pro_list
 
 
+    def Get_neighbor_Alien_pro(self):
+
+        directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]
+
+        x = self.Ship.bot.x
+        y = self.Ship.bot.y
+
+        neighbor_Alien_pro_list = [0, 0, 0, 0]
+
+        for direction in range(4):
+            dx, dy = directions[direction]
+
+            if self.Ship.is_valid(x + dx, y +dy) and self.Ship.Ship_matrix[x + dx][y + dy].state == 'open':
+
+                neighbor_Alien_pro_list[direction] = self.Ship_Alien_Prob_matrix[x + dx][y + dy]
+
+        return neighbor_Alien_pro_list
+
     def Run(self, K_list, alpha_list, num_trails=100):
 
         dataset_save_path = "./dataset_feature/dataset_episode_"
@@ -818,7 +836,7 @@ class Bot1_save_feature:
                         step_data.append(list(max_index))
 
                         # DS area alien prob
-                        step_data.append(self.Get_DS_Alien_pro())
+                        step_data.append(self.Get_neighbor_Alien_pro())
 
                         # 使用列表推导式展开为一维列表
                         step_data = [element for sublist in step_data for element in sublist]
