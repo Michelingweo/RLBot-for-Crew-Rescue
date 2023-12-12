@@ -46,6 +46,7 @@ class SpaceShipMLP:
     
     def loss(self, x, t):
         y = self.predict(x)
+        
         return self.last_layer.forward(y, t)
 
     def accuracy(self, test_set, batch_size=100):
@@ -65,8 +66,8 @@ class SpaceShipMLP:
 
     def gradient(self, x, t):
         # forward
-        self.loss(x, t)
-
+        output = self.loss(x, t)
+        # print('prediction:',output,"\n")
         # backward
         dout = 1
         dout = self.last_layer.backward(dout)

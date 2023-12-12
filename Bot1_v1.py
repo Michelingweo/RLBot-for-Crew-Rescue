@@ -934,7 +934,7 @@ if __name__ == '__main__':
     
     Ship_Dimention = 50
     Bot_idx = 1
-    Num_trails = 1 # number of games
+    Num_trails = 10 # number of games
     print('Bot:', Bot_idx)
     print('num trails:', Num_trails)
     

@@ -42,13 +42,22 @@ def cross_entropy_error(y, t):
 
 
 def softmax(x):
-
-    c = np.max(x)
+    # Subtract the max for numerical stability
+    c = np.max(x, axis=1, keepdims=True)
     _ = x-c
     _ = _.astype(float)
-    exp_a = np.exp(_)
-    sum_exp_a = np.sum(exp_a)
-    return exp_a/np.sum(sum_exp_a)
+    exp_x = np.exp(_)
+    sum_exp_x = np.sum(exp_x, axis=1, keepdims=True)
+    return exp_x / sum_exp_x
+
+# def softmax(x):
+
+#     c = np.max(x)
+#     _ = x-c
+#     _ = _.astype(float)
+#     exp_a = np.exp(_)
+#     sum_exp_a = np.sum(exp_a)
+#     return exp_a/np.sum(sum_exp_a)
 
 
 def numerical_diff(f,x):
