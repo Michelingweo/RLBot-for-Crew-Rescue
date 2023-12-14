@@ -103,8 +103,8 @@ class SpaceShipMLP:
             self.params[key] = val
 
         for i, layer_idx in enumerate((0, 3, 5)):
-            self.layers[layer_idx].W = self.params['W' + str(i+1)]
-            self.layers[layer_idx].b = self.params['b' + str(i+1)]
+            self.layers[layer_idx].W = self.params['W' + str(layer_idx)]
+            self.layers[layer_idx].b = self.params['b' + str(layer_idx)]
 
 #training
 class Trainer:
