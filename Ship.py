@@ -6,6 +6,7 @@ import numpy as np
 import time
 import math
 import copy
+import pickle
 
 
 class Ship_node:
@@ -272,12 +273,33 @@ class Ship:
         self.Ship_state_matrix = np.array(self.Ship_state_matrix)
         self.Ship_state_matrix = np.transpose(self.Ship_state_matrix)
 
-        # print(self.Ship_state_matrix)
+        print(self.Ship_state_matrix)
 
         plt.figure(figsize=(self.Ship_Dimention, self.Ship_Dimention))
         plt.imshow(self.Ship_state_matrix, cmap=custom_cmap, origin='lower')
  
         plt.show()
+
+    def Get_Ship_and_bot_matrix(self):
+
+        matrix = [[0 for _ in range(self.Ship_Dimention)]
+                                for _ in range(self.Ship_Dimention)]
+
+        for x in range(self.Ship_Dimention):
+
+            for y in range(self.Ship_Dimention):
+
+                if self.Ship_matrix[x][y].state == 'open':
+
+                    if self.Ship_matrix[x][y].if_Bot == 1:
+                        matrix[x][y] = 2
+                    else:
+                        matrix[x][y] = 1
+                        
+                else:
+                    continue
+
+        return matrix
 
     def If_in_DS(self, position):
             DS = self.DS()
@@ -609,9 +631,17 @@ if __name__ == '__main__':
 
     Ship_Dimention = 50
     Num_of_Crew = 1
-    Num_of_Alien = 2
+    Num_of_Alien = 1
 
-    Our_Ship = Ship(Ship_Dimention, Num_of_Crew, Num_of_Alien, 3)
+    Our_Ship = Ship(Ship_Dimention, Num_of_Crew, Num_of_Alien, 3, 1)
 
     Our_Ship.Show_Ship()
 
+    # 将实例保存到文件
+    with open('Ship.pkl', 'wb') as file:
+        pickle.dump(Our_Ship, file)
+    
+    with open('Ship.pkl', 'rb') as file:
+        Ship_load = pickle.load(file)
+
+    Ship_load.Show_Ship()

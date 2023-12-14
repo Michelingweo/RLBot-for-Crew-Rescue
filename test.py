@@ -39,4 +39,4 @@ def softmax(x):
 #     sum_exp_a = np.sum(exp_a)
 #     return exp_a/np.sum(sum_exp_a)
 
-print(softmax(x))
+x 
