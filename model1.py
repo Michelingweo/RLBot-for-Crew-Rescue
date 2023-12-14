@@ -6,7 +6,7 @@ import pickle
 import torch
 
 import matplotlib.pyplot as plt
-from Data_process import DataLoader, read_data
+from Data_process import *
 # input:
 
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     bs = 64
 
     # data & model init
-    trainset_, testset_ = read_data()
+    trainset_, testset_ = Model1_read_dataset_feature()
     
     train_set = DataLoader(trainset_, batch_size=bs)
     test_set = DataLoader(testset_, batch_size=bs)
